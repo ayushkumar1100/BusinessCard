@@ -1,0 +1,25 @@
+{
+  "name": "businesscard",
+  "version": "1.0.0",
+  "description": "A fun way to generate a business card.",
+  "keywords": [
+    "business",
+    "card",
+    "npm"
+  ],
+  "license": "ISC",
+  "author": "Ayush Kumar",
+  "type": "commonjs",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "body-parser": "^2.2.2",
+    "boxen": "^8.0.1",
+    "chalk": "^5.6.2",
+    "cors": "^2.8.6",
+    "express": "^5.2.1",
+    "mongoose": "^9.5.0"
+  }
+}
