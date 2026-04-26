@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Auth</title>
+
+    <style>
+        body {
+            margin: 0;
+            height: 100vh;
+            font-family: 'Segoe UI', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+        }
+
+        .box {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            width: 320px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .tabs {
+            display: flex;
+            margin-bottom: 20px;
+        }
+
+        .tabs button {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            cursor: pointer;
+            background: #eee;
+        }
+
+        .tabs .active {
+            background: #667eea;
+            color: white;
+            font-weight: bold;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px;
+            margin: 8px 0;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+        }
+
+        button.action {
+            width: 100%;
+            padding: 12px;
+            margin-top: 10px;
+            border: none;
+            border-radius: 8px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="box">
+
+    <!-- TOGGLE -->
+    <div class="tabs">
+        <button id="loginTab" class="active" onclick="showLogin()">Login</button>
+        <button id="signupTab" onclick="showSignup()">Signup</button>
+    </div>
+
+    <!-- LOGIN -->
+    <div id="loginForm">
+        <input id="loginEmail" placeholder="Email">
+        <input id="loginPassword" type="password" placeholder="Password">
+        <button class="action" onclick="login()">Login</button>
+    </div>
+
+    <!-- SIGNUP -->
+    <div id="signupForm" class="hidden">
+        <input id="signupEmail" placeholder="Email">
+        <input id="signupPassword" type="password" placeholder="Password">
+        <button class="action" onclick="register()">Signup</button>
+        <p id="signupMessage" style="color:red;"></p>
+    </div>
+
+</div>
+
+<script>
+
+// redirect if already logged in
+if (localStorage.getItem("userId")) {
+    window.location.href = "dashboard.html"
+}
+
+// toggle functions
+function showLogin() {
+    document.getElementById("loginForm").classList.remove("hidden")
+    document.getElementById("signupForm").classList.add("hidden")
+
+    document.getElementById("loginTab").classList.add("active")
+    document.getElementById("signupTab").classList.remove("active")
+}
+
+function showSignup() {
+    document.getElementById("signupForm").classList.remove("hidden")
+    document.getElementById("loginForm").classList.add("hidden")
+
+    document.getElementById("signupTab").classList.add("active")
+    document.getElementById("loginTab").classList.remove("active")
+}
+
+// login
+async function login() {
+    const email = document.getElementById("loginEmail").value
+    const password = document.getElementById("loginPassword").value
+
+    const res = await fetch("http://localhost:3000/api/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password })
+    })
+
+    const user = await res.json()
+
+    if (user._id) {
+        localStorage.setItem("userId", user._id)
+        window.location.href = "dashboard.html"
+    } else {
+        alert("Invalid Login")
+    }
+}
+
+async function register() {
+    const email = document.getElementById("signupEmail").value
+    const password = document.getElementById("signupPassword").value
+
+    if (!email || !password) {
+        document.getElementById("signupMessage").innerText = "All fields required"
+        return
+    }
+
+    const res = await fetch("http://localhost:3000/api/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password })
+    })
+
+    const data = await res.json()
+
+    // 🔥 show message instead of alert
+    document.getElementById("signupMessage").innerText = data.message
+
+    // ✅ if success → switch to login
+    if (data.message === "User created successfully") {
+        showLogin()
+    }
+}
+
+</script>
+
+</body>
+</html>

@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Dashboard</title>
+
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', sans-serif;
+            background: #f5f7fb;
+        }
+
+        /* 🔷 NAVBAR */
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 30px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .navbar h2 {
+            margin: 0;
+        }
+
+        .logout-btn {
+            width: auto;
+            padding: 6px 12px;
+            font-size: 13px;
+            border-radius: 20px;
+
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: 1px solid white;
+
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .logout-btn:hover {
+            background: #eee;
+        }
+
+        /* 🔷 MAIN LAYOUT */
+        .container {
+            display: flex;
+            gap: 20px;
+            padding: 20px;
+            flex-wrap: wrap;
+        }
+
+        .box {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            width: 300px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        h3 {
+            margin-bottom: 15px;
+        }
+
+        input {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+        }
+
+        input:focus {
+            border-color: #667eea;
+            outline: none;
+        }
+
+        button {
+            width: 100%;
+            padding: 10px;
+            border: none;
+            border-radius: 8px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        button:hover {
+            opacity: 0.9;
+        }
+
+        /* 🔷 PREVIEW CARD */
+        .preview-card {
+            background: linear-gradient(135deg, #667eea, #6fc3ff);
+            color: white;
+            padding: 15px;
+            border-radius: 12px;
+        }
+
+        /* 🔷 SAVED CARDS */
+        .card {
+            background: #ffffff;
+            border-left: 5px solid #667eea;
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 10px;
+        }
+
+        .card h4 {
+            margin: 0;
+        }
+
+        .card p {
+            margin: 3px 0;
+            font-size: 14px;
+        }
+
+        #message {
+            color: green;
+            font-size: 14px;
+        }
+
+        .delete-btn {
+            margin-top: 8px;
+            padding: 6px 10px;
+            border: none;
+            border-radius: 6px;
+            background: #ff4d4d;
+            color: white;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .delete-btn:hover {
+            background: #e60000;
+        }
+
+        .edit-btn {
+            margin-top: 5px;
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 6px 10px;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        .edit-btn:hover {
+            background: #388e3c;
+        }
+
+        .card button {
+            margin-right: 5px;
+        }
+    </style>
+</head>
+
+<body>
+
+<!-- 🔷 NAVBAR -->
+<div class="navbar">
+    <h2>Digital Business Card</h2>
+    <button class="logout-btn" onclick="logout()">Logout</button>
+</div>
+
+<!-- 🔷 MAIN -->
+<div class="container">
+
+    <!-- CREATE CARD -->
+    <div class="box">
+        <h3>Create Card</h3>
+        <input id="name" placeholder="Name" oninput="preview()">
+        <input id="email" placeholder="Email" oninput="preview()">
+        <input id="phone" placeholder="Phone" oninput="preview()">
+        <input id="company" placeholder="Company" oninput="preview()">
+
+        <button onclick="createCard()">Save Card</button>
+        <p id="message"></p>
+    </div>
+
+    <!-- PREVIEW -->
+    <div class="box">
+        <h3>Live Preview</h3>
+        <div class="preview-card">
+            <h4 id="p_name">Your Name</h4>
+            <p id="p_email">Email</p>
+            <p id="p_phone">Phone</p>
+            <p id="p_company">Company</p>
+        </div>
+    </div>
+
+    <!-- SAVED CARDS -->
+    <div class="box">
+        <h3>Your Cards</h3>
+        <div id="cardsContainer"></div>
+    </div>
+
+</div>
+
+<script>
+
+// 🔒 protect page
+const userId = localStorage.getItem("userId")
+if (!userId) {
+    window.location.href = "login.html"
+}
+
+// 🔁 load cards on start
+window.onload = loadCards
+
+function preview() {
+    document.getElementById("p_name").innerText = document.getElementById("name").value || "Your Name"
+    document.getElementById("p_email").innerText = document.getElementById("email").value || "Email"
+    document.getElementById("p_phone").innerText = document.getElementById("phone").value || "Phone"
+    document.getElementById("p_company").innerText = document.getElementById("company").value || "Company"
+}
+
+async function createCard() {
+    const name = document.getElementById("name").value
+    const email = document.getElementById("email").value
+    const phone = document.getElementById("phone").value
+    const company = document.getElementById("company").value
+
+    if (!name || !email || !phone || !company) {
+        alert("All fields required")
+        return
+    }
+
+    if (editId) {
+        // 🔥 UPDATE
+        await fetch(`http://localhost:3000/api/card/${editId}`, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ name, email, phone, company })
+        })
+
+        editId = null
+        document.querySelector("button").innerText = "Save Card"
+
+    } else {
+        // CREATE
+        await fetch("http://localhost:3000/api/card", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ name, email, phone, company, userId })
+        })
+    }
+
+    // clear form
+    document.getElementById("name").value = ""
+    document.getElementById("email").value = ""
+    document.getElementById("phone").value = ""
+    document.getElementById("company").value = ""
+
+    document.getElementById("message").innerText = "Saved Successfully"
+
+    loadCards()
+}
+
+let editId = null
+
+function editCard(id, name, email, phone, company) {
+    editId = id
+
+    document.getElementById("name").value = name
+    document.getElementById("email").value = email
+    document.getElementById("phone").value = phone
+    document.getElementById("company").value = company
+
+    document.querySelector("button").innerText = "Update Card"
+}
+
+async function loadCards() {
+    const res = await fetch(`http://localhost:3000/api/card/${userId}`)
+    const cards = await res.json()
+
+    const container = document.getElementById("cardsContainer")
+    container.innerHTML = ""
+
+    cards.forEach(card => {
+        const div = document.createElement("div")
+        div.className = "card"
+
+        div.innerHTML = `
+            <h4>${card.name}</h4>
+            <p>${card.email}</p>
+            <p>${card.phone}</p>
+            <p>${card.company}</p>
+
+            <button class="edit-btn"  onclick="editCard('${card._id}', '${card.name}', '${card.email}', '${card.phone}', '${card.company}')">
+                Edit
+            </button>
+
+            <button class="delete-btn" onclick="deleteCard('${card._id}')">
+                Delete
+            </button>
+        `
+
+        container.appendChild(div)
+    })
+}
+
+
+async function deleteCard(id) {
+    const confirmDelete = confirm("Are you sure?")
+
+    if (!confirmDelete) return
+
+    await fetch(`http://localhost:3000/api/card/${id}`, {
+        method: "DELETE"
+    })
+
+    loadCards()
+}
+
+function logout() {
+    localStorage.removeItem("userId")
+    window.location.href = "login.html"
+}
+
+</script>
+
+</body>
+</html>
