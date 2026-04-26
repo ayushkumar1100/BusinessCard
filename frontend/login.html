@@ -142,7 +142,7 @@ async function login() {
         return
     }
 
-    const res = await fetch("http://localhost:3000/api/login", {
+    const res = await fetch("https://businesscard-5d93.onrender.com/api/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password })
@@ -177,7 +177,7 @@ async function register() {
         return
     }
 
-    const res = await fetch("http://localhost:3000/api/register", {
+    const res = await fetch("https://businesscard-5d93.onrender.com/api/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password })

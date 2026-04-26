@@ -245,7 +245,7 @@ async function createCard() {
 
     if (editId) {
         // UPDATE
-        await fetch(`http://localhost:3000/api/card/${editId}`, {
+        await fetch(`https://businesscard-5d93.onrender.com/api/card/${editId}`, {
             method: "PUT",
             headers: {
                 "Content-Type": "application/json",
@@ -259,7 +259,7 @@ async function createCard() {
 
     } else {
         // CREATE
-        await fetch("http://localhost:3000/api/card", {
+        await fetch("https://businesscard-5d93.onrender.com/api/card", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
@@ -292,7 +292,7 @@ function editCard(id, name, email, phone, company) {
 }
 
 async function loadCards() {
-    const res = await fetch("http://localhost:3000/api/card", {
+    const res = await fetch("https://businesscard-5d93.onrender.com/api/card", {
         headers: {
             "Authorization": token
         }
@@ -332,7 +332,7 @@ async function deleteCard(id) {
     const confirmDelete = confirm("Are you sure?")
     if (!confirmDelete) return
 
-    await fetch(`http://localhost:3000/api/card/${id}`, {
+    await fetch(`https://businesscard-5d93.onrender.com/api/card/${id}`, {
         method: "DELETE",
         headers: {
             "Authorization": token
