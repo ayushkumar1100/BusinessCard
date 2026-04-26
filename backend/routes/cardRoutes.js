@@ -1,9 +1,10 @@
 const express = require("express")
 const router = express.Router()
 const Card = require("../models/Card")
+const auth = require("../middleware/auth")
 
 
-router.post("/card",async(req, res)=>{
+router.post("/card",auth, async(req, res)=>{
 
     const { name, email, phone, company } = req.body
 
@@ -25,39 +26,72 @@ router.post("/card",async(req, res)=>{
 
     
     const card = new Card({
-        name:req.body.name,
-        email:req.body.email,
-        phone:req.body.phone,
-        company:req.body.company,
-        theme:req.body.theme,
-        userId:req.body.userId
+        name,
+        email,
+        phone,
+        company,
+        theme: req.body.theme,
+        userId: req.userId
     })
     const savedCard = await card.save()
     res.json(savedCard)
 })
 
-router.get("/card/:userId",async(req, res)=>{
-    const cards = await Card.find({userId:req.params.userId})
+router.get("/card",auth, async(req, res)=>{
+    const cards = await Card.find({userId:req.userId})
     res.json(cards)
 })
 
-router.get("/card/:id", async(req, res)=>{
+router.get("/card/:id", auth, async(req, res)=>{
     const card = await Card.findById(req.params.id)
+
+    if (!card) {
+        return res.status(404).json({ message: "Card not found" })
+    }
+
+    if (card.userId.toString() !== req.userId) {
+        return res.status(403).json({ message: "Unauthorized" })
+    }
+
     res.json(card)
 })
 
-router.put("/card/:id", async(req, res)=>{
+router.put("/card/:id", auth, async(req, res)=>{
+
+    const card = await Card.findById(req.params.id)
+
+    if (!card) {
+        return res.status(404).json({ message: "Card not found" })
+    }
+
+    if (card.userId.toString() !== req.userId) {
+        return res.status(403).json({ message: "Unauthorized" })
+    }
+
     const updatedCard = await Card.findByIdAndUpdate(
         req.params.id,
         req.body,
-        {returnDocument: "after"}
+        { returnDocument: "after" }
     )
+
     res.json(updatedCard)
 })
 
-router.delete("/card/:id",async(req, res)=>{
+router.delete("/card/:id", auth, async(req, res)=>{
+
+    const card = await Card.findById(req.params.id)
+
+    if (!card) {
+        return res.status(404).json({ message: "Card not found" })
+    }
+
+    if (card.userId.toString() !== req.userId) {
+        return res.status(403).json({ message: "Unauthorized" })
+    }
+
     await Card.findByIdAndDelete(req.params.id)
-    res.json({message: "Card deleted"})
+
+    res.json({ message: "Card deleted" })
 })
 
 

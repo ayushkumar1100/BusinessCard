@@ -175,7 +175,7 @@
         <input id="phone" type="tel" placeholder="Phone" oninput="preview()">
         <input id="company" placeholder="Company" oninput="preview()">
 
-        <button onclick="createCard()">Save Card</button>
+        <button class="save-btn" onclick="createCard()">Save Card</button>
         <p id="message"></p>
     </div>
 
@@ -200,9 +200,10 @@
 
 <script>
 
-// 🔒 protect page
-const userId = localStorage.getItem("userId")
-if (!userId) {
+// 🔒 protect page using token
+const token = localStorage.getItem("token")
+
+if (!token) {
     window.location.href = "login.html"
 }
 
@@ -216,24 +217,24 @@ function preview() {
     document.getElementById("p_company").innerText = document.getElementById("company").value || "Company"
 }
 
+let editId = null
+
 async function createCard() {
     const name = document.getElementById("name").value.trim()
     const email = document.getElementById("email").value.trim()
     const phone = document.getElementById("phone").value.trim()
     const company = document.getElementById("company").value.trim()
 
-    // patterns
     const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
     const phonePattern = /^[0-9]{10}$/
 
-    // checks
     if (!name || !email || !phone || !company) {
         alert("All fields are required")
         return
     }
 
     if (!emailPattern.test(email)) {
-        alert("Enter valid email (must include @gmail.com)")
+        alert("Enter valid email")
         return
     }
 
@@ -243,22 +244,28 @@ async function createCard() {
     }
 
     if (editId) {
-        // 🔥 UPDATE
+        // UPDATE
         await fetch(`http://localhost:3000/api/card/${editId}`, {
             method: "PUT",
-            headers: { "Content-Type": "application/json" },
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": token
+            },
             body: JSON.stringify({ name, email, phone, company })
         })
 
         editId = null
-        document.querySelector("button").innerText = "Save Card"
+        document.querySelector(".save-btn").innerText = "Save Card"
 
     } else {
         // CREATE
         await fetch("http://localhost:3000/api/card", {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ name, email, phone, company, userId })
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": token
+            },
+            body: JSON.stringify({ name, email, phone, company })
         })
     }
 
@@ -273,8 +280,6 @@ async function createCard() {
     loadCards()
 }
 
-let editId = null
-
 function editCard(id, name, email, phone, company) {
     editId = id
 
@@ -283,11 +288,16 @@ function editCard(id, name, email, phone, company) {
     document.getElementById("phone").value = phone
     document.getElementById("company").value = company
 
-    document.querySelector("button").innerText = "Update Card"
+    document.querySelector(".save-btn").innerText = "Update Card"
 }
 
 async function loadCards() {
-    const res = await fetch(`http://localhost:3000/api/card/${userId}`)
+    const res = await fetch("http://localhost:3000/api/card", {
+        headers: {
+            "Authorization": token
+        }
+    })
+
     const cards = await res.json()
 
     const container = document.getElementById("cardsContainer")
@@ -303,11 +313,13 @@ async function loadCards() {
             <p>${card.phone}</p>
             <p>${card.company}</p>
 
-            <button class="edit-btn"  onclick="editCard('${card._id}', '${card.name}', '${card.email}', '${card.phone}', '${card.company}')">
+            <button class="edit-btn"
+                onclick="editCard('${card._id}', '${card.name}', '${card.email}', '${card.phone}', '${card.company}')">
                 Edit
             </button>
 
-            <button class="delete-btn" onclick="deleteCard('${card._id}')">
+            <button class="delete-btn"
+                onclick="deleteCard('${card._id}')">
                 Delete
             </button>
         `
@@ -316,21 +328,22 @@ async function loadCards() {
     })
 }
 
-
 async function deleteCard(id) {
     const confirmDelete = confirm("Are you sure?")
-
     if (!confirmDelete) return
 
     await fetch(`http://localhost:3000/api/card/${id}`, {
-        method: "DELETE"
+        method: "DELETE",
+        headers: {
+            "Authorization": token
+        }
     })
 
     loadCards()
 }
 
 function logout() {
-    localStorage.removeItem("userId")
+    localStorage.removeItem("token")
     window.location.href = "login.html"
 }
 
