@@ -3,76 +3,121 @@
     <head>
         <title>Digital Business Card</title>
         <style>
-            body{
-                font-family: Arial;
-                display: flex;
-                gap: 50px;
-                padding:20px
+            body {
+                font-family: 'Segoe UI', sans-serif;
+                background: #f5f7fb;
+                margin: 0;
+                padding: 20px;
             }
 
-            .form, .preview, .saved{
+            .container {
+                display: flex;
+                gap: 30px;
+                justify-content: center;
+            }
+
+            .box {
+                background: white;
+                padding: 20px;
+                border-radius: 15px;
+                box-shadow: 0 4px 15px rgba(0,0,0,0.1);
                 width: 300px;
             }
 
-            .card{
-                border: 1px solid black;
+            h2 {
+                margin-bottom: 15px;
+            }
+
+            input {
+                width: 100%;
+                padding: 10px;
+                margin-bottom: 10px;
+                border-radius: 8px;
+                border: 1px solid #ddd;
+                outline: none;
+            }
+
+            input:focus {
+                border-color: #4a90e2;
+            }
+
+            button {
+                width: 100%;
+                padding: 10px;
+                border: none;
+                border-radius: 8px;
+                background: #4a90e2;
+                color: white;
+                font-weight: bold;
+                cursor: pointer;
+                transition: 0.3s;
+            }
+
+            button:hover {
+                background: #357abd;
+            }
+
+            .card {
+                background: linear-gradient(135deg, #4a90e2, #6fc3ff);
+                color: white;
                 padding: 15px;
-                border-radius: 10px;
+                border-radius: 12px;
                 margin-bottom: 10px;
             }
 
-            .login-box {
-                display: flex;
-                flex-direction: column;
-                gap: 10px;
-                width: 200px;
+            .card h3 {
+                margin: 0;
+            }
+
+            .card p {
+                margin: 5px 0;
+                font-size: 14px;
+            }
+
+            #message {
+                color: green;
+                font-size: 14px;
             }
         </style>
     </head>
 
     <body>
 
-        <div class="login-box">
-            <h2>Login</h2>
+        <div class="container">
 
-            <input type="email" id="loginEmail" placeholder="Email">
-            <input type="password" id="loginPassword" placeholder="Password">
-
-            <button onclick="login()">Login</button>
-            <p id="loginMessage"></p>
-        </div>
-
-        <p id="loginMessage"></p>
-
-        <div class="form">
-            <h2>Create Business Card</h2>
-
-            <input type="text" id="name" placeholder="Name" oninput="preview()"><br><br>
-            <input type="email" id="email" placeholder="Email" oninput="preview()"><br><br>
-            <input type="text" id="phone" placeholder="Phone" oninput="preview()"><br><br>
-            <input type="text" id="company" placeholder="Company" oninput="preview()"><br><br>
-
-            <button onclick="createCard()">Save Card</button>
-
-            <p id="message"></p>
-
-        </div>
-
-        <div class="preview">
-            <h2>Live Preview</h2>
-
-            <div class="card">
-                <h3 id="p_name">Your Name</h3>
-                <p id="p_email">Email</p>
-                <p id="p_phone">Phone</p>
-                <p id="p_company">Company</p>
+            <div class="box">
+                <h2>Login</h2>
+                <input id="loginEmail" placeholder="Email">
+                <input id="loginPassword" type="password" placeholder="Password">
+                <button onclick="login()">Login</button>
+                <p id="loginMessage"></p>
             </div>
-        </div>
 
+            <div class="box">
+                <h2>Create Card</h2>
+                <input id="name" placeholder="Name" oninput="preview()">
+                <input id="email" placeholder="Email" oninput="preview()">
+                <input id="phone" placeholder="Phone" oninput="preview()">
+                <input id="company" placeholder="Company" oninput="preview()">
+                <button id="saveBtn" onclick="createCard()">Save Card</button>
+                <p id="message"></p>
+            </div>
 
-        <div class="saved">
-            <h2>Your Card</h2>
-            <div id="cardsContainer"></div>
+            <div class="box">
+                <h2>Preview</h2>
+                <div class="card">
+                    <h3 id="p_name">Your Name</h3>
+                    <p id="p_email">Email</p>
+                    <p id="p_phone">Phone</p>
+                    <p id="p_company">Company</p>
+                </div>
+            </div>
+
+            <div class="box">
+                <h2>Your Cards</h2>
+                <div id="cardsContainer"></div>
+            </div>
+
         </div>
 
         <script>
