@@ -170,9 +170,9 @@
     <!-- CREATE CARD -->
     <div class="box">
         <h3>Create Card</h3>
-        <input id="name" placeholder="Name" oninput="preview()">
-        <input id="email" placeholder="Email" oninput="preview()">
-        <input id="phone" placeholder="Phone" oninput="preview()">
+        <input id="name"  placeholder="Name" oninput="preview()">
+        <input id="email" type="email"  placeholder="Email" oninput="preview()">
+        <input id="phone" type="tel" placeholder="Phone" oninput="preview()">
         <input id="company" placeholder="Company" oninput="preview()">
 
         <button onclick="createCard()">Save Card</button>
@@ -217,13 +217,28 @@ function preview() {
 }
 
 async function createCard() {
-    const name = document.getElementById("name").value
-    const email = document.getElementById("email").value
-    const phone = document.getElementById("phone").value
-    const company = document.getElementById("company").value
+    const name = document.getElementById("name").value.trim()
+    const email = document.getElementById("email").value.trim()
+    const phone = document.getElementById("phone").value.trim()
+    const company = document.getElementById("company").value.trim()
 
+    // patterns
+    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    const phonePattern = /^[0-9]{10}$/
+
+    // checks
     if (!name || !email || !phone || !company) {
-        alert("All fields required")
+        alert("All fields are required")
+        return
+    }
+
+    if (!emailPattern.test(email)) {
+        alert("Enter valid email (must include @gmail.com)")
+        return
+    }
+
+    if (!phonePattern.test(phone)) {
+        alert("Phone must be exactly 10 digits")
         return
     }
 

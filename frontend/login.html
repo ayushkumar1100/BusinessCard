@@ -97,6 +97,9 @@
 
 <script>
 
+const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+const passwordPattern = /^.{6,}$/   // min 6 characters
+
 // redirect if already logged in
 if (localStorage.getItem("userId")) {
     window.location.href = "dashboard.html"
@@ -121,8 +124,23 @@ function showSignup() {
 
 // login
 async function login() {
-    const email = document.getElementById("loginEmail").value
-    const password = document.getElementById("loginPassword").value
+    const email = document.getElementById("loginEmail").value.trim()
+    const password = document.getElementById("loginPassword").value.trim()
+
+    if (!email || !password) {
+        alert("All fields required")
+        return
+    }
+
+    if (!emailPattern.test(email)) {
+        alert("Enter valid email")
+        return
+    }
+
+    if (!passwordPattern.test(password)) {
+        alert("Password must be at least 6 characters")
+        return
+    }
 
     const res = await fetch("http://localhost:3000/api/login", {
         method: "POST",
@@ -136,16 +154,26 @@ async function login() {
         localStorage.setItem("userId", user._id)
         window.location.href = "dashboard.html"
     } else {
-        alert("Invalid Login")
+        alert("Invalid login")
     }
 }
 
 async function register() {
-    const email = document.getElementById("signupEmail").value
-    const password = document.getElementById("signupPassword").value
+    const email = document.getElementById("signupEmail").value.trim()
+    const password = document.getElementById("signupPassword").value.trim()
 
     if (!email || !password) {
         document.getElementById("signupMessage").innerText = "All fields required"
+        return
+    }
+
+    if (!emailPattern.test(email)) {
+        document.getElementById("signupMessage").innerText = "Invalid email"
+        return
+    }
+
+    if (!passwordPattern.test(password)) {
+        document.getElementById("signupMessage").innerText = "Password must be 6+ characters"
         return
     }
 
@@ -157,10 +185,8 @@ async function register() {
 
     const data = await res.json()
 
-    // 🔥 show message instead of alert
     document.getElementById("signupMessage").innerText = data.message
 
-    // ✅ if success → switch to login
     if (data.message === "User created successfully") {
         showLogin()
     }

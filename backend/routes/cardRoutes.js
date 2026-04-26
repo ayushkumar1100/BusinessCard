@@ -4,9 +4,26 @@ const Card = require("../models/Card")
 
 
 router.post("/card",async(req, res)=>{
-    if (!req.body.name || !req.body.email || !req.body.phone || !req.body.company) {
-    return res.status(400).json({ message: "All fields required" })
+
+    const { name, email, phone, company } = req.body
+
+    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    const phonePattern = /^[0-9]{10}$/
+
+    if (!name || !email || !phone || !company) {
+        return res.status(400).json({ message: "All fields required" })
     }
+
+    if (!emailPattern.test(email)) {
+        return res.status(400).json({ message: "Invalid email format" })
+    }
+
+    if (!phonePattern.test(phone)) {
+        return res.status(400).json({ message: "Phone must be 10 digits" })
+    }
+
+
+    
     const card = new Card({
         name:req.body.name,
         email:req.body.email,
