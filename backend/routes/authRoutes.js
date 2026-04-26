@@ -2,6 +2,7 @@ const express = require("express")
 const router = express.Router()
 const User = require("../models/user")
 const jwt = require("jsonwebtoken")
+const bcrypt = require("bcrypt")
 
 router.post("/register", async (req, res) => {
     const { email, password } = req.body
@@ -25,7 +26,12 @@ router.post("/register", async (req, res) => {
         return res.json({ message: "User already exists" })
     }
 
-    const user = new User({ email, password })
+    const hashedPassword = await bcrypt.hash(password, 10)
+
+    const user = new User({
+        email,
+        password: hashedPassword
+    })
     await user.save()
 
     res.json({ message: "User created successfully" })
@@ -38,9 +44,16 @@ router.post("/login", async (req, res) => {
         return res.status(400).json({ message: "All fields required" })
     }
 
-    const user = await User.findOne({ email, password })
+    const user = await User.findOne({ email })
 
     if (!user) {
+        return res.status(401).json({ message: "Invalid login" })
+    }
+
+    // 🔥 compare password
+    const isMatch = await bcrypt.compare(password, user.password)
+
+    if (!isMatch) {
         return res.status(401).json({ message: "Invalid login" })
     }
 
