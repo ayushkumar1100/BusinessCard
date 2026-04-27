@@ -49,9 +49,7 @@ router.get("/card/:id", async(req, res)=>{
         return res.status(404).json({ message: "Card not found" })
     }
 
-    if (card.userId.toString() !== req.userId) {
-        return res.status(403).json({ message: "Unauthorized" })
-    }
+    
 
     res.json(card)
 })
