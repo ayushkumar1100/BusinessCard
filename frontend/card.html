@@ -2,14 +2,33 @@
 <html>
 <head>
     <title>Digital Card</title>
+    <style>
+        body {
+            font-family: Arial;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            text-align: center;
+            margin-top: 100px;
+        }
+
+        .card {
+            background: white;
+            color: black;
+            padding: 20px;
+            border-radius: 15px;
+            width: 300px;
+            margin: auto;
+        }
+</style>
 </head>
 <body>
 
-<h2 id="name"></h2>
-<p id="email"></p>
-<p id="phone"></p>
-<p id="company"></p>
-
+<<div class="card">
+    <h2 id="name"></h2>
+    <p id="email"></p>
+    <p id="phone"></p>
+    <p id="company"></p>
+</div>
 <script>
 const params = new URLSearchParams(window.location.search)
 const id = params.get("id")
