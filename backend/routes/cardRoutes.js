@@ -42,7 +42,7 @@ router.get("/card",auth, async(req, res)=>{
     res.json(cards)
 })
 
-router.get("/card/:id", auth, async(req, res)=>{
+router.get("/card/:id", async(req, res)=>{
     const card = await Card.findById(req.params.id)
 
     if (!card) {

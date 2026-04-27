@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Digital Card</title>
+</head>
+<body>
+
+<h2 id="name"></h2>
+<p id="email"></p>
+<p id="phone"></p>
+<p id="company"></p>
+
+<script>
+const params = new URLSearchParams(window.location.search)
+const id = params.get("id")
+
+fetch(`https://businesscard-5d93.onrender.com/api/card/${id}`)
+.then(res => res.json())
+.then(data => {
+    document.getElementById("name").innerText = data.name
+    document.getElementById("email").innerText = data.email
+    document.getElementById("phone").innerText = data.phone
+    document.getElementById("company").innerText = data.company
+})
+</script>
+
+</body>
+</html>
