@@ -11,7 +11,7 @@
             background: #f5f7fb;
         }
 
-        /* 🔷 NAVBAR */
+        
         .navbar {
             display: flex;
             justify-content: space-between;
@@ -201,14 +201,14 @@
 
 <script>
 
-// 🔒 protect page using token
+
 const token = localStorage.getItem("token")
 
 if (!token) {
     window.location.href = "login.html"
 }
 
-// 🔁 load cards on start
+
 window.onload = loadCards
 
 function preview() {

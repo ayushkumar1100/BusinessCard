@@ -50,7 +50,7 @@ router.post("/login", async (req, res) => {
         return res.status(401).json({ message: "Invalid login" })
     }
 
-    // 🔥 compare password
+    
     const isMatch = await bcrypt.compare(password, user.password)
 
     if (!isMatch) {

@@ -72,30 +72,40 @@
 
 <div class="box">
 
-    <!-- TOGGLE -->
+    
     <div class="tabs">
         <button id="loginTab" class="active" onclick="showLogin()">Login</button>
         <button id="signupTab" onclick="showSignup()">Signup</button>
     </div>
 
-    <!-- LOGIN -->
+    
     <div id="loginForm">
         <input id="loginEmail" placeholder="Email">
         <input id="loginPassword" type="password" placeholder="Password">
         <button class="action" onclick="login()">Login</button>
     </div>
 
-    <!-- SIGNUP -->
+    
     <div id="signupForm" class="hidden">
         <input id="signupEmail" placeholder="Email">
         <input id="signupPassword" type="password" placeholder="Password">
         <button class="action" onclick="register()">Signup</button>
+        <button class="action" onclick="checkVerification()">I have verified</button>
         <p id="signupMessage" style="color:red;"></p>
     </div>
 
 </div>
 
-<script>
+<script type="module">
+
+    import { auth } from "./firebase.js";
+    import { 
+        createUserWithEmailAndPassword, 
+        sendEmailVerification 
+    } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+
+    let tempEmail = "";
+    let tempPassword = "";
 
 const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 const passwordPattern = /^.{6,}$/   // min 6 characters
@@ -106,7 +116,7 @@ if (localStorage.getItem("userId")) {
 }
 
 // toggle functions
-function showLogin() {
+window.showLogin = function () {
     document.getElementById("loginForm").classList.remove("hidden")
     document.getElementById("signupForm").classList.add("hidden")
 
@@ -114,7 +124,7 @@ function showLogin() {
     document.getElementById("signupTab").classList.remove("active")
 }
 
-function showSignup() {
+window.showSignup = function () {
     document.getElementById("signupForm").classList.remove("hidden")
     document.getElementById("loginForm").classList.add("hidden")
 
@@ -122,8 +132,8 @@ function showSignup() {
     document.getElementById("loginTab").classList.remove("active")
 }
 
-// login
-async function login() {
+
+window.login = async function () {
     const email = document.getElementById("loginEmail").value.trim()
     const password = document.getElementById("loginPassword").value.trim()
 
@@ -158,7 +168,7 @@ async function login() {
     }
 }
 
-async function register() {
+window.register = async function () {
     const email = document.getElementById("signupEmail").value.trim()
     const password = document.getElementById("signupPassword").value.trim()
 
@@ -177,18 +187,51 @@ async function register() {
         return
     }
 
-    const res = await fetch("https://businesscard-5d93.onrender.com/api/register", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password })
-    })
+    try {
+        tempEmail = email
+        tempPassword = password
 
-    const data = await res.json()
+        const userCred = await createUserWithEmailAndPassword(auth, email, password)
 
-    document.getElementById("signupMessage").innerText = data.message
+        await sendEmailVerification(userCred.user)
 
-    if (data.message === "User created successfully") {
-        showLogin()
+        document.getElementById("signupMessage").innerText = "Verification email sent!"
+
+    } catch (err) {
+        document.getElementById("signupMessage").innerText = err.message
+    }
+}
+
+window.checkVerification = async function () {
+    if (!auth.currentUser) {
+        alert("Signup first")
+        return
+    }
+
+    await auth.currentUser.reload()
+
+    if (auth.currentUser.emailVerified) {
+        alert("Verified ✅")
+
+        const res = await fetch("https://businesscard-5d93.onrender.com/api/register", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                email: tempEmail,
+                password: tempPassword
+            })
+        })
+
+        const data = await res.json()
+
+        alert(data.message)
+
+        if (data.message === "User created successfully") {
+            showLogin()
+        }
+
+    } else {
+        alert("Not verified ❌")
     }
 }
 
